@@ -6,22 +6,9 @@ require 'pry'
 RSpec.describe ImageData do
   include ImageData
 
-  describe '#extract_file_information' do
+  describe '#csv_row_for_file' do
 
     describe 'for an image with gps coordinates' do
-      it 'returns an array of three elements' do
-        #setup
-        image_path = "./gps_images/cats/image_e.jpg"
-
-        #execute
-        actual = extract_file_information(image_path)
-
-        #assert
-        expect(actual).to be_kind_of Array
-        expect(actual).not_to be_empty
-        expect(actual.length).to be(3)
-      end
-
       it 'gets the filename for a given image' do
         #setup
         image_path = './gps_images/cats/image_e.jpg'

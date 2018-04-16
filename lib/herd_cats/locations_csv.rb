@@ -14,26 +14,29 @@ class LocationsCSV
   # includes the ImageData module,
   # which provides methods for getting gps information for a file
   include ImageData
+  attr_accessor :image_paths, :image_path
 
-  # Initializes LocationsCSV with image_files
+  # Initializes LocationsCSV with image_paths
   #
   # @param [Array<String>] an array of image file paths
-  def initialize(image_files)
-    @image_files = image_files
+  def initialize(image_paths)
+    @image_paths = image_paths
   end
 
-  # Generates a csv with ImageData information for image_files
+  # Generates a csv with ImageData information for image_paths
   #
   # @return [CSV] returns a csv file
   def generate_csv_for_images
     CSV.open(csv_filename, 'wb' ) do |csv|
       csv << CSV_COLUMN_TITLES
 
-      @image_files.each do |image_file|
+      image_paths.each do |image_path|
 
-        exit_now!("#{image_file} is not a valid file") unless file_is_valid?(image_file)
+        @image_path = image_path
 
-        csv << extract_file_information(image_file)
+        raise ArgumentError.new(invalid_file_message) unless file_exists?
+
+        csv << csv_row_for_file
       end
     end
   end
@@ -54,7 +57,25 @@ class LocationsCSV
   # @private
   # @param [String] path to an image file
   # @return [Boolean] whether or not there is a file matching the given filepath
-  def file_is_valid?(image_file)
-    File.exist?(image_file)
+  def file_exists?
+    File.exist?(image_path)
+  end
+
+  # Raises an error for invalid file
+  #
+  # @param [String] path to an image file
+  # @return [GLI::CustomExit] error with message
+  def invalid_file_message
+    "#{image_path} is not a valid file"
+  end
+
+  # For a given image,
+  # Builds an array that will be assigned to a line of the csv
+  #
+  # @param [String] path to a jpg
+  # @return [Array<String,Float>] Array of image filename, lat, and long
+  def csv_row_for_file
+    image_meta = image_to_exif(image_path)
+    [filename_for(image_path), latitude_for(image_meta), longitude_for(image_meta)]
   end
 end

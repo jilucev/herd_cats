@@ -1,5 +1,0 @@
-Kitten plot is a command line app you can use to get GPS information on all your most coveted felines.
-
-Simply feed it a directory of images and use the generated csv to inform your plans.
-
-With this tool and a bit of brazen pet trafficking, the bold and tech-savvy need never be lonely again.

@@ -2,7 +2,7 @@
 require 'gli'
 require 'herd_cats'
 require 'pry'
-require_relative '../locations_csv'
+require_relative '../lib/herd_cats/locations_csv'
 
 # Used to Set the default image directory
 # @return [String] path to default image directory
@@ -20,11 +20,11 @@ arguments :strict
 desc 'Get a csv representing the gps coordinates for each image a directory'
 arg_name 'path_to_image_directory'
 
-desc 'Gets filename, latitude and longitude for each image and outputs to csv'
+desc 'Gets gps coordinates for each image and outputs to csv'
 arg_name 'path'
 command :get_coordinates do |c|
   c.desc 'Path to image directory'
-  c.default_value './gps_images'
+  c.default_value DEFAULT_IMAGE_DIR
   c.flag :p
 
   # Executes the code within get_coordinates command
@@ -47,7 +47,7 @@ end
 # @param args [Array] args passed to the command
 # @return [Array<String>] Array of jpg file paths
 pre do |global,command,options,args|
-  @image_files = Dir.glob("#{path_to_image_files(args)}/**/*.jpg")
+  @image_files = Dir.glob("#{path_to_image_files(args)}/**/*.{jpg,jpeg,tiff}")
 end
 
 # Sets the program to use either default image dir or one supplied by the user
@@ -67,7 +67,7 @@ end
 # @param command [GLI::Command] the command called
 # @param options [Hash] options passed to the command
 # @param args [Array] args passed to the command
-# @return [String] prints a completion message to the console
+# @return [Nil] prints a completion message to the console
 post do |global,command,options,args|
   puts "Finished generating csv"
 end
@@ -75,7 +75,7 @@ end
 # Prints application errors to the console
 #
 # @param exception [GLI::CustomExit] an error thrown by the application
-# @return [String] A message that is printed to the console
+# @return [Nil] A message that is printed to the console
 on_error do |exception|
   puts("ERROR: #{exception}")
 end

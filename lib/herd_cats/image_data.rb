@@ -2,16 +2,6 @@ require 'exifr/jpeg'
 
 module ImageData
 
-  # For a given image,
-  # Builds an array that will be assigned to a line of the csv
-  #
-  # @param [String] path to a jpg
-  # @return [Array<String,Float>] Array of image filename, lat, and long
-  def extract_file_information(image_path)
-    image_meta = image_to_exif(image_path)
-    [filename_for(image_path), latitude_for(image_meta), longitude_for(image_meta)]
-  end
-
   # Returns the filename for an image path
   #
   # @param [String] path to a jpg
@@ -21,6 +11,8 @@ module ImageData
   end
 
   # Returns the latitude from the image meta
+  # returns nil if latitude is not represent
+  # assumes that the csv values should be blank in that case
   #
   # @param [EXIFR::JPEG] meta for an image
   # @return [Float] Latitude from the image meta
@@ -29,6 +21,8 @@ module ImageData
   end
 
   # Returns the longitude from the image meta
+  # returns nil if latitude is not represent
+  # assumes that the csv values should be blank in that case
   #
   # @param [EXIFR::JPEG] meta for an image
   # @return [Float] Longitude from the image meta
@@ -41,6 +35,10 @@ module ImageData
   # @param [EXIFR::JPEG] module that reads metadata for an image
   # @return [Float] Latitude from the image meta
   def image_to_exif(image_path)
-    EXIFR::JPEG.new(image_path)
+    if image_path.match(/\.jp(e)?g/)
+      return EXIFR::JPEG.new(image_path)
+    else
+      return EXIFR::TIFF.new(image_path)
+    end
   end
 end
