@@ -1,0 +1,83 @@
+#!/usr/bin/env ruby
+require 'gli'
+require 'herd_cats'
+require 'pry'
+require_relative '../locations_csv'
+
+# Used to Set the default image directory
+# @return [String] path to default image directory
+DEFAULT_IMAGE_DIR = './gps_images'
+
+include GLI::App
+
+program_desc 'Generates a csv with gps data for your image files'
+
+version HerdCats::VERSION
+
+subcommand_option_handling :normal
+arguments :strict
+
+desc 'Get a csv representing the gps coordinates for each image a directory'
+arg_name 'path_to_image_directory'
+
+desc 'Gets filename, latitude and longitude for each image and outputs to csv'
+arg_name 'path'
+command :get_coordinates do |c|
+  c.desc 'Path to image directory'
+  c.default_value './gps_images'
+  c.flag :p
+
+  # Executes the code within get_coordinates command
+  #
+  # @param global [Hash]
+  # @param command [GLI::Command] the get_coordinates command
+  # @param options [Hash] options passed to the command
+  # @param args [Array] args passed to the command
+  # @return [Array<String>] Array of jpg file paths
+  c.action do |global_options,options,args|
+    LocationsCSV.new(@image_files).generate_csv_for_images
+  end
+end
+
+# Returns an array of strings that are paths to jpgs in the supplied dir
+#
+# @param global [Hash]
+# @param command [GLI::Command] the command called
+# @param options [Hash] options passed to the command
+# @param args [Array] args passed to the command
+# @return [Array<String>] Array of jpg file paths
+pre do |global,command,options,args|
+  @image_files = Dir.glob("#{path_to_image_files(args)}/**/*.jpg")
+end
+
+# Sets the program to use either default image dir or one supplied by the user
+# Throws an error if called with an arg that is not a directory
+#
+# @param args [Array<String>] args passed to the command
+# @return [String]
+def path_to_image_files(args)
+  file_path = args.length > 0 ? args.first : DEFAULT_IMAGE_DIR
+  exit_now!('Arg must be a directory') unless File.directory?(file_path)
+  file_path
+end
+
+# Prints a message to the console when the program has successfully run
+#
+# @param global [Hash]
+# @param command [GLI::Command] the command called
+# @param options [Hash] options passed to the command
+# @param args [Array] args passed to the command
+# @return [String] prints a completion message to the console
+post do |global,command,options,args|
+  puts "Finished generating csv"
+end
+
+# Prints application errors to the console
+#
+# @param exception [GLI::CustomExit] an error thrown by the application
+# @return [String] A message that is printed to the console
+on_error do |exception|
+  puts("ERROR: #{exception}")
+end
+
+exit run(ARGV)

@@ -1,0 +1,5 @@
+= herd_cats
+
+Generate this with
+    herd_cats rdoc
+After you have described your command line interface
